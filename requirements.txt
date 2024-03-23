@@ -1,0 +1,5 @@
+pandas
+keyboard
+pyperclip
+pyautogui
+beautifulsoup4

@@ -23,12 +23,24 @@ def get_comments(id: str) -> tuple[float, int, int]:
     com_amount = 0
     rev_amount = 0
     try:
-        m = float(body.p.string.replace(",", "."))
+        m_str = body.p.string
+        if "Поставьте" in m_str:
+            m = 0.0
+        else:
+            m = float(m_str.replace(",", "."))
+
         amount_str = soup.find_all("a", {"class": "mini-badge__rating"})[0].string
-        com_amount, rev_amount = [x.split()[0] for x in amount_str.split(" • ")]
+        if "•" in amount_str:
+            com_amount, rev_amount = [int(x.split()[0]) for x in amount_str.split(" • ")]
+        else:
+            if "отзыв" in amount_str:
+                com_amount = int(amount_str.split()[0])
+            elif "оценк" in amount_str:
+                rev_amount = int(amount_str.split()[0])
+
     except Exception as e_:
         pass
-    return m, com_amount if isinstance(com_amount, int) else 0, rev_amount if isinstance(rev_amount, int) else 0
+    return m, com_amount, rev_amount
 
 
 def address_to_id(address: str):
@@ -44,7 +56,7 @@ def address_to_id(address: str):
     key.press('enter')
     key.release('enter')
     time.sleep(1)
-    pyautogui.click(54, 360)
+    pyautogui.click(54, 420)
     time.sleep(0.3)
     pyautogui.click(952, 702)
     time.sleep(0.3)
@@ -72,12 +84,13 @@ def address_to_id(address: str):
 file = open("results.txt", "a")
 
 for index, v in df.iterrows():
-    if int(index) > 210\
-            :
+    if int(index) > 210:
+        if key.is_pressed('esc'):
+            sys.exit(-1)
         try:
             request_row = v['name'].replace(",", "") + " " + v['address_name']
             print(request_row)
-            if v['address_name'] == "Нет" or v['address_comment'] == "Нет" or not int(v['lat']) or not int(v['lon']):
+            if v['address_name'] == "Нет" or not int(v['lat']) or not int(v['lon']):
                 print("skip")
             else:
                 y_id = address_to_id(request_row)
@@ -95,3 +108,10 @@ for index, v in df.iterrows():
 # while True:
 #     x, y = pyautogui.position()
 #     print(x, y)
+
+# Edge
+# window size: 967 953
+# 100 100
+# 5 415
+# 1000 484
+# 1029 296
